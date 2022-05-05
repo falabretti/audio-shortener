@@ -3,6 +3,8 @@ from typing import Dict
 import dotenv
 import requests
 from classes import *
+import time
+import random
 
 dotenv.load_dotenv()
 
@@ -57,4 +59,37 @@ def get_transcript(transcript_id):
     endpoint = TRANSCRIPT_ENDPOINT + '/' + transcript_id
     response = requests.get(endpoint, headers=headers)
     return __convert(response.json())
+
+
+def wait_for_transcript(transcript_id):
+    max_retries = 10
+    retry_count = 0
+    max_backoff = 32
+
+    while True:
+        transcript = get_transcript(transcript_id)
+        print(transcript)
+
+        if transcript.status == 'completed':
+            print('Transcript ready.')
+            return transcript
+
+        if transcript.status == 'error':
+            print('There was an error while processing the transcript.')
+            break
+
+        if transcript.status in ['processing', 'queued']:
+            if retry_count == max_retries:
+                print('Max retries reached.')
+                break
+
+            print('Transcript not ready yet.')
+
+            sleep_time = min(2 ** retry_count, max_backoff) + random.uniform(0, 1)
+            print(f'Sleeping for {sleep_time} seconds.')
+            time.sleep(sleep_time)
+
+            retry_count += 1
+
+            continue
 

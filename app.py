@@ -1,8 +1,7 @@
 import sys
 import os
 import assemblyai
-import time
-import json
+import text_player
 
 
 def get_audio_file_name():
@@ -16,28 +15,18 @@ def get_audio_file_name():
 
     return audio_file_path
 
-def wait_for_transcript(transcript_id):
-    transcript = assemblyai.get_transcript(transcript_id)
-
-    while True:
-        if transcript.status == 'completed':
-            print('Transcript ready.')
-            return transcript
-
-        if transcript.status == 'error':
-            print('There was an error while processing the transcript.')
-            break
-
-        if transcript.status == 'processing':
-            print('Transcript not ready yet.')
-            time.sleep(10)
-            continue
 
 if __name__ == '__main__':
     audio_file_path = get_audio_file_name()
+
+    print('Uploading audio file...')
     file_url = assemblyai.upload_file(audio_file_path)
+
+    print('Submitting transcript...')
     transcript = assemblyai.submit_transcript(file_url)
 
-    print(transcript)
-    transcript = wait_for_transcript(transcript.id)
-    print(transcript)
+    print('Waiting for transcript...')
+    transcript = assemblyai.wait_for_transcript(transcript.id)
+
+    print('Playing transcript text...')
+    text_player.speak_text(transcript.summary)
