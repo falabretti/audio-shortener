@@ -1,10 +1,9 @@
 import os
-from typing import Dict
 import dotenv
 import requests
-from classes import *
 import time
 import random
+import json
 
 dotenv.load_dotenv()
 
@@ -18,6 +17,16 @@ headers = {
 }
 
 
+class Transcript:
+    def __init__(self, id, status, summary = None):
+        self.id = id
+        self.status = status
+        self.summary = summary
+
+    def __str__(self) -> str:
+        return json.dumps(self.__dict__, indent=4)
+
+
 def __read_file(filename, chunk_size=5242880):
     with open(filename, 'rb') as _file:
         while True:
@@ -27,7 +36,7 @@ def __read_file(filename, chunk_size=5242880):
             yield data
 
 
-def __convert(response: Dict) -> Transcript:
+def __convert(response) -> Transcript:
     id = response['id']
     status = response['status']
     summary = None
