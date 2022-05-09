@@ -1,23 +1,30 @@
-import sys
 import os
+import argparse
 import assemblyai
-import text_player
+import util
+
+parser = argparse.ArgumentParser('AudioShortener')
+
+parser.add_argument('-a', '--audio', type=str)
+parser.add_argument('-v', '--video', type=str)
+
+args = parser.parse_args()
 
 
-def get_audio_file_name():
-    if len(sys.argv) < 2:
-        sys.exit('No audio file provided!')
+def get_audio_file_path():
+    audio_file_path = None
 
-    audio_file_path = os.path.abspath(sys.argv[1])
+    if args.audio:
+        audio_file_path = os.path.abspath(args.audio)
+    elif args.video:
+        audio_file_path = util.extract_audio(args.video)
 
-    if not os.path.isfile(audio_file_path):
-        sys.exit('File does not exists!')
-
+    util.validate_file(audio_file_path)    
     return audio_file_path
 
 
 if __name__ == '__main__':
-    audio_file_path = get_audio_file_name()
+    audio_file_path = get_audio_file_path()
 
     print('Uploading audio file...')
     file_url = assemblyai.upload_file(audio_file_path)
@@ -29,4 +36,4 @@ if __name__ == '__main__':
     transcript = assemblyai.wait_for_transcript(transcript.id)
 
     print('Playing transcript text...')
-    text_player.speak_text(transcript.summary)
+    util.speak_text(transcript.summary)
