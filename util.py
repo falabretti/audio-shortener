@@ -14,6 +14,8 @@ def __get_audio_file_name(video_file_path):
 
 
 def validate_file(file_path):
+    '''Validates if a given file path points to a valid file or not'''
+
     if file_path is None:
         sys.exit('No audio or video file provided!')  
 
@@ -22,6 +24,7 @@ def validate_file(file_path):
 
 
 def extract_audio(video_file_path):
+    '''Extract the audio portion from a video file and save it as an .mp3 file'''
     validate_file(video_file_path)
     audio_file_name = __get_audio_file_name(video_file_path)
 
@@ -32,6 +35,7 @@ def extract_audio(video_file_path):
 
 
 def get_audio_file_path(args):
+    '''Decide whether the program should use a video of audio file. If it's an video file, extract its audio as well'''
     audio_file_path = None
 
     if args.audio:
@@ -43,12 +47,14 @@ def get_audio_file_path(args):
 
 
 def save_transcript(transcript):
+    '''Save the transcript object into a JSON file'''
     file_path = os.path.join('data', 'output', f'{transcript.id}.json')
     with open(file_path, 'w') as f:
         f.write(transcript.__str__())
 
 
 def speak_text(text):
+    '''Reproduce a given text in audio format'''
     out = pyttsx3.init()    
     out.say(text)
     out.runAndWait()

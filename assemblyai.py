@@ -18,6 +18,7 @@ headers = {
 
 
 class Transcript:
+    '''Represents an AssemblyAI's transcript'''
     def __init__(self, id, status, summary = None):
         self.id = id
         self.status = status
@@ -49,12 +50,14 @@ def __convert(response) -> Transcript:
 
 
 def upload_file(audio_file_path):
+    '''Upload file to AssemblyAI'''
     response = requests.post(UPLOAD_ENDPOINT, headers=headers, data=__read_file(audio_file_path))
     file_url = response.json().get('upload_url')
     return file_url
 
 
 def submit_transcript(file_url):
+    '''Submit a transcription request to AssemblyAI'''
     data = {
         'audio_url': file_url,
         'auto_chapters': True
@@ -65,16 +68,19 @@ def submit_transcript(file_url):
 
 
 def get_transcript(transcript_id):
+    '''Fetch a transcription from AssemblyAI'''
     endpoint = TRANSCRIPT_ENDPOINT + '/' + transcript_id
     response = requests.get(endpoint, headers=headers)
     return __convert(response.json())
 
 
 def wait_for_transcript(transcript_id):
+    '''Wait for a transcription to be ready. Fetch the transcription multiple times until its status is 'succeded' or an error occurs.'''
     max_retries = 10
     retry_count = 0
     max_backoff = 32
 
+    # Exponential back off
     while True:
         transcript = get_transcript(transcript_id)
         print(transcript)

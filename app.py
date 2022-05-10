@@ -1,22 +1,27 @@
-import os
 import argparse
 import assemblyai
 import util
 import sys
 
-parser = argparse.ArgumentParser('AudioShortener')
+args = None
 
-parser.add_argument('-a', '--audio', type=str)
-parser.add_argument('-v', '--video', type=str)
-parser.add_argument('-w', '--wait', action='store_true')
-parser.add_argument('-s', '--save', action='store_true')
-parser.add_argument('-p', '--play', action='store_true')
-parser.add_argument('--id', type=str)
+def parse_args():
+    '''Parse command line arguments'''
+    global args
 
-args = parser.parse_args()
+    parser = argparse.ArgumentParser('AudioShortener')
 
+    parser.add_argument('-a', '--audio', type=str, help='Audio file for transcription')
+    parser.add_argument('-v', '--video', type=str, help='Video file for transcription')
+    parser.add_argument('-w', '--wait', action='store_true', help='Wait for transcription completion')
+    parser.add_argument('-s', '--save', action='store_true', help='Save the transcription result in a JSON file')
+    parser.add_argument('-p', '--play', action='store_true', help='Reproduce the summary text via audio')
+    parser.add_argument('--id', type=str, help='Do not process a new file and use this transcription instead')
+
+    args = parser.parse_args()
 
 def send_file():
+    '''Upload a file and submit it for transcription'''
     audio_file_path = util.get_audio_file_path(args)
 
     print('Uploading audio file...')
@@ -28,7 +33,8 @@ def send_file():
     return transcript
 
 
-def process_transcript_id():
+def process_transcript():
+    '''Decide if the program should use a video, audio or an existing transcription'''
     if args.audio or args.video:
         transcript = send_file()
         return transcript.id
@@ -38,18 +44,21 @@ def process_transcript_id():
         sys.exit('No file or transcript id provided!') 
 
 
-def process_transcript(transcript_id):
+def get_transcript(transcript_id):
+    '''Fetch the transcription result'''
     if args.wait:
         print('Waiting for transcript...')
         return assemblyai.wait_for_transcript(transcript_id)
     else:
         return assemblyai.get_transcript(transcript_id)
 
+def main():
+    '''Program main funcion'''
 
-if __name__ == '__main__':
+    parse_args()
 
-    transcript_id = process_transcript_id()
-    transcript = process_transcript(transcript_id)
+    transcript_id = process_transcript()
+    transcript = get_transcript(transcript_id)
 
     print(transcript)
 
@@ -59,3 +68,6 @@ if __name__ == '__main__':
     
     if args.save:
         util.save_transcript(transcript)
+
+if __name__ == '__main__':
+    main()
