@@ -31,6 +31,23 @@ def extract_audio(video_file_path):
     return os.path.abspath(audio_file_name)
 
 
+def get_audio_file_path(args):
+    audio_file_path = None
+
+    if args.audio:
+        audio_file_path = os.path.abspath(args.audio)
+    elif args.video:
+        audio_file_path = extract_audio(args.video)
+
+    return audio_file_path
+
+
+def save_transcript(transcript):
+    file_path = os.path.join('data', 'output', f'{transcript.id}.json')
+    with open(file_path, 'w') as f:
+        f.write(transcript.__str__())
+
+
 def speak_text(text):
     out = pyttsx3.init()    
     out.say(text)
