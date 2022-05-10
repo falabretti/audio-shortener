@@ -7,10 +7,19 @@ Through an audio or video file, this application is able to generate a text summ
 
 The application was tested only with Python 3.10.4.
 
-Install required dependencies:
+### Install required dependencies
 ```
 python -m pip intall -r requirements.txt
 ```
+
+### Environment variables
+
+Duplicate the `.env.example` file to a `.env` file:
+```
+cp .env.example .env
+```
+
+Set your `API_KEY` in the `.env` file. You can get an API key by creating an account on [AssemblyAI](https://www.assemblyai.com/).
 
 ---
 ## Usage
